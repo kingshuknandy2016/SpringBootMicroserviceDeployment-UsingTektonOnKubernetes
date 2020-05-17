@@ -1,0 +1,9 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineResource
+metadata:
+  name: image-service2
+spec:
+  type: image
+  params:
+    - name: url
+      value: gcr.io/tekton-demo-1/spring-microservice2-img

@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy-microservices
+spec:
+  inputs:
+    resources:
+      - name: source-code-microservice-app
+        type: git
+      - name: builtImageService1
+        type: image
+    params:
+      - name: path-to-microservice1-deploymentfile
+        description: Path to the app manifest to apply
+        default: /workspace/source-code-microservice-app/projects/microservices/01-currency-exchange-microservice-basic/configuration/kubernetes/deployment.yaml
+      - name: yqArg
+        description: Okay this is a hack, but I didn't feel right hard-coding `-d1` down below
+        default: "-d1"
+      - name: yamlPathToImage
+        description: The path to the image to replace in the yaml manifest (arg to yq)
+        default: "spec.template.spec.containers[0].image"
+  steps:
+    - name: run-currency-exchange-microservice
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "$(inputs.params.path-to-microservice1-deploymentfile)"
+ 

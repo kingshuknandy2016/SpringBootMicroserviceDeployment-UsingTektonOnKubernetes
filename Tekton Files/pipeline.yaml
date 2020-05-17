@@ -1,0 +1,73 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Pipeline
+metadata:
+  name: spring-boot-microservice-pipeline
+spec:
+  resources:
+    - name: source-code-for-spring-boot-app
+      type: git
+    - name: image-microservice1
+      type: image
+    - name: image-microservice2
+      type: image
+  tasks:
+    - name: test-microservice1-task
+      taskRef:
+        name: test-microservice1
+
+      resources:
+        inputs:
+          - name: source-code-microservice-app
+            resource: source-code-for-spring-boot-app
+
+    - name: build-microservice1-image-build-task
+      taskRef:
+        name: build-microservice1-image
+      runAfter:
+          - test-microservice1-task
+      resources:
+        inputs:
+          - name: source-code-microservice-app
+            resource: source-code-for-spring-boot-app
+        outputs:
+          - name: builtImageService1
+            resource: image-microservice1
+
+    - name: build-microservice2-image-build-task
+      taskRef:
+        name: build-microservice2-image
+      resources:
+        inputs:
+          - name: source-code-microservice-app
+            resource: source-code-for-spring-boot-app
+        outputs:
+          - name: builtImageService2
+            resource: image-microservice2
+       ### deploy ###
+    - name: deploy
+      taskRef:
+        name: deploy-microservices
+      resources:
+        inputs:
+          - name: source-code-microservice-app
+            resource: source-code-for-spring-boot-app
+          - name: builtImageService1
+            resource: image-microservice1 
+            from:
+              - build-microservice1-image-build-task
+    - name: deploy2
+      taskRef:
+        name: deploy-microservices2
+      runAfter:
+          - deploy
+      resources:
+        inputs:
+          - name: source-code-microservice-app
+            resource: source-code-for-spring-boot-app
+          - name: builtImageService2
+            resource: image-microservice2
+            from:
+              - build-microservice2-image-build-task
+      
+
+

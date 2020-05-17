@@ -1,0 +1,36 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: build-microservice2-image
+spec:
+  inputs:
+    resources:
+      - name: source-code-microservice-app
+        type: git
+
+    params:
+      - name: pathToDockerFileApp2
+        description: The path to the dockerfile to build
+        default: /workspace/source-code-microservice-app/projects/microservices/02-currency-conversion-microservice-basic/Dockerfile
+
+      - name: pathToContext
+        description: The build context used by Kaniko
+        default: /workspace/source-code-microservice-app/
+
+  outputs:
+    resources:
+      - name: builtImageService2
+        type: image
+  steps:
+    - name: build-and-push
+      image: gcr.io/kaniko-project/executor
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+      - name: "DOCKER_CONFIG"
+        value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=$(inputs.params.pathToDockerFileApp2)
+        - --destination=$(outputs.resources.builtImageService2.url)
+        - --context=$(inputs.params.pathToContext)

@@ -1,0 +1,21 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: deploy-microservices
+spec:
+  inputs:
+    resources:
+      - name: source-code-microservice-app
+        type: git
+    params:
+      - name: path-to-microservice1-deploymentfile
+        description: Path to the app manifest to apply
+  steps:
+    - name: run-currency-exchange-microservice
+      image: lachlanevenson/k8s-kubectl
+      command: ["kubectl"]
+      args:
+        - "apply"
+        - "-f"
+        - "$(inputs.params.path-to-microservice1-deploymentfile)"
+ 

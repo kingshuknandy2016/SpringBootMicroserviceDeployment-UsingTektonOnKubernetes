@@ -1,0 +1,24 @@
+apiVersion: tekton.dev/v1alpha1
+kind: TaskRun
+metadata:
+  name: taskrun-build-and-push-microservice1
+spec:
+  inputs:
+    params:
+      - name: pathToDockerFileApp
+        value: /workspace/source-code-microservice-app/projects/microservices/01-currency-exchange-microservice-basic/Dockerfile
+      - name: pathToContext
+        value: /workspace/source-code-microservice-app
+    resources:
+      - name: source-code-microservice-app
+        resourceRef:
+          name: git-springboot-microservice-pipeline
+  outputs:
+    resources:
+      - name: builtImageService1
+        resourceRef:
+          name: image-service1
+  serviceAccountName: docker-auth-sa
+  taskRef:
+    kind: Task
+    name: build-microservice1-image

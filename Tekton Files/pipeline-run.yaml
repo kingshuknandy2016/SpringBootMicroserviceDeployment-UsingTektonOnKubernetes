@@ -1,0 +1,19 @@
+apiVersion: tekton.dev/v1alpha1
+kind: PipelineRun
+metadata:
+  name: spring-boot-microservice-pipeline-run
+spec:
+  serviceAccountName: docker-auth-sa
+  pipelineRef:
+    name: spring-boot-microservice-pipeline
+  resources:
+    - name: source-code-for-spring-boot-app
+      resourceRef:
+        name: git-springboot-microservice-pipeline
+    - name: image-microservice1
+      resourceRef: 
+        name: image-service1
+    - name: image-microservice2
+      resourceRef: 
+        name: image-service2
+    

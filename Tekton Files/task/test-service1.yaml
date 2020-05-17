@@ -1,0 +1,32 @@
+apiVersion: tekton.dev/v1alpha1
+kind: Task
+metadata:
+  name: test-microservice1
+spec:
+  inputs:
+    resources:
+      - name: source-code-microservice-app
+        type: git
+
+    params:
+      - name: pathToDockerFileApp
+        description: The path to the dockerfile to build
+        default: /workspace/source-code-microservice-app/projects/microservices/01-currency-exchange-microservice-basic/testing/Dockerfile
+
+      - name: pathToContext
+        description: The build context used by Kaniko
+        default: /workspace/source-code-microservice-app/
+
+  steps:
+    - name: testing-service1
+      image: gcr.io/kaniko-project/executor
+      # specifying DOCKER_CONFIG is required to allow kaniko to detect docker credential
+      env:
+      - name: "DOCKER_CONFIG"
+        value: "/tekton/home/.docker/"
+      command:
+        - /kaniko/executor
+      args:
+        - --dockerfile=$(inputs.params.pathToDockerFileApp)
+        - --context=$(inputs.params.pathToContext)
+        - --no-push
